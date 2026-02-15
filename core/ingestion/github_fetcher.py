@@ -1,11 +1,11 @@
 import os
 import requests
+import logging
 from pathlib import Path
-from typing import Optional
 
-from utils.logging.logger import get_logger
+from utils.logging.logger import setup_logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 GITHUB_API_BASE = "https://api.github.com/repos"
 
@@ -69,3 +69,15 @@ def _fetch_directory(owner: str, repo: str, path: str, local_dir: Path, token: s
                     f.write(file_response.content)
 
                 logger.info(f"Saved: {file_path}")
+
+"""
+usage:
+
+local_repo_path = fetch_repository(
+    repo_url=args.repo_url,
+    save_dir="data/raw",
+    token = github_token
+)
+
+use a parser to extract repo code and feed it to fetch_repo function to save the repo locally.
+"""
