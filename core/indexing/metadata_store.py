@@ -13,7 +13,7 @@ class MetadataStore:
         self.id_to_chunk[vector_id] = chunk_metadata
 
     def get(self,vector_id: int):
-        return self.id_to_chunk(vector_id)
+        return self.id_to_chunk.get(int(vector_id))
     
     def save(self, path: str):
         with open(path, "wb") as f:

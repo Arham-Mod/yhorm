@@ -16,7 +16,7 @@ class Embedder:
     Also save vector as float 32 as the FAISS is written in c++ which operates on 32 bit and optimised for float 32 bit
     """
 
-    def __init__(self, model_name: str = "sentence-transformer/all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         self.model_name = model_name
         self.model = SentenceTransformer(model_name)
 

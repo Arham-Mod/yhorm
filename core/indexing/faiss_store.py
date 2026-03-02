@@ -9,10 +9,10 @@ class FaissVectorStore:
 
     def __init__(self, dimension: int):
         self.dimension = dimension
-        self.index = faiss.IndexFaltIP(dimension)
+        self.index = faiss.IndexFlatIP(dimension)
     
     @staticmethod
-    def _normalize(vectors: np.darray) -> np.ndarray:
+    def _normalize(vectors: np.ndarray) -> np.ndarray:
         """
         Normalize vectors for cosine similarity
         """
@@ -29,7 +29,7 @@ class FaissVectorStore:
 
         self.index.add(np_vectors)
 
-    def serach(self, query_vector: np.darray, top_k: int = 5):
+    def search(self, query_vector: np.ndarray, top_k: int = 5):
         """
         Search similiar vectors.
         """
