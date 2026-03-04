@@ -1,24 +1,33 @@
-import pickle
-from typing import Dict
-from pathlib import Path
+from typing import Dict, List
+from core.parsing.chunk_model import CodeChunk
+
 
 class MetadataStore:
     """
-    stores mapping between FAISS vector IDs and CodeChunk metadata
+    Stores mapping between FAISS vector IDs and CodeChunk metadata.
+    Also maintains name-based lookup for dependency expansion.
     """
+
     def __init__(self):
-        self.id_to_chunk: Dict[int,dict] = {}
 
-    def add(self, vector_id: int, chunk_metadata: dict):
-        self.id_to_chunk[vector_id] = chunk_metadata
+        self.id_to_chunk: Dict[int, CodeChunk] = {}
+        self.name_to_chunk_ids: Dict[str, List[int]] = {}
 
-    def get(self,vector_id: int):
-        return self.id_to_chunk.get(int(vector_id))
-    
-    def save(self, path: str):
-        with open(path, "wb") as f:
-            pickle.dump(self.id_to_chunk,f)
-    
-    def load(self, path:str):
-        with open(path, "rb") as f:
-            self.id_to_chunk = pickle.load(f)
+    def add(self, vector_id: int, chunk: CodeChunk):
+
+        self.id_to_chunk[vector_id] = chunk
+
+        if chunk.name not in self.name_to_chunk_ids:
+            self.name_to_chunk_ids[chunk.name] = []
+
+        self.name_to_chunk_ids[chunk.name].append(vector_id)
+
+    def get_chunk(self, vector_id: int):
+
+        return self.id_to_chunk.get(vector_id)
+
+    def get_chunks_by_name(self, name: str):
+
+        ids = self.name_to_chunk_ids.get(name, [])
+
+        return [self.id_to_chunk[i] for i in ids]

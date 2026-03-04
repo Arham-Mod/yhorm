@@ -1,38 +1,32 @@
 import os
 import time
-from utils.logging.logger import setup_logging
 import logging
+
+from utils.logging.logger import setup_logging
 
 from core.ingestion.repo_loader import load_repository
 from core.parsing.ast_parser import ASTParser
 from core.indexing.embedder import Embedder
 from core.indexing.faiss_store import FaissVectorStore
 from core.indexing.metadata_store import MetadataStore
+from core.retrieval.retriever import expand_dependencies
 
 
 def main():
 
-    # -----------------------------
     # Setup Logging
-    # -----------------------------
     setup_logging()
     logger = logging.getLogger(__name__)
 
     logger.info("Starting Repository Intelligence System Test")
 
-    # -----------------------------
     # Load Repository
-    # -----------------------------
-    repo_path = "data/raw/"   # Change this path
-    # `load_repository` returns a list of file paths, not a loader object.
-    # Use the returned list directly.
+    repo_path = "data/raw/"  
     files = load_repository(repo_path)
 
     logger.info(f"Loaded {len(files)} Python files")
 
-    # -----------------------------
     # Parse Code into Chunks
-    # -----------------------------
     parser = ASTParser()
     code_chunks = []
 
@@ -46,9 +40,7 @@ def main():
         logger.error("No chunks extracted. Exiting.")
         return
 
-    # -----------------------------
     # Embedding + Indexing
-    # -----------------------------
     logger.info("Generating embeddings...")
 
     embedder = Embedder()
@@ -59,63 +51,61 @@ def main():
     ]
 
     start_time = time.time()
+
     vectors = embedder.embed_batch(texts)
+
     logger.info(f"Generated {len(vectors)} embeddings")
 
-    dimension = vectors[0].shape[0]
-    vector_store = FaissVectorStore(dimension)
+    # Initialize Stores
     metadata_store = MetadataStore()
+    vector_store = FaissVectorStore(metadata_store)
 
+    # Add vectors to FAISS
     vector_store.add_vectors(vectors)
 
+    # Register metadata
     for idx, chunk in enumerate(code_chunks):
-        metadata_store.add(idx, {
-            "name": chunk.name,
-            "file_path": chunk.file_path,
-            "start_line": chunk.start_line,
-            "end_line": chunk.end_line,
-            "source_code": chunk.source_code,
-            "called_functions": chunk.calls
-        })
+        metadata_store.add(idx, chunk)
 
     logger.info("Indexing complete")
 
-    # -----------------------------
     # Test Query
-    # -----------------------------
-    test_query = "In what files is the multiply logic present"
+    test_query = "In what files is the chunking and storing logic present?"
 
     logger.info(f"Running test query: {test_query}")
 
     query_vector = embedder.embed_text(test_query)
+
     scores, indices = vector_store.search(query_vector, top_k=5)
 
-    logger.info("Top results:")
+    # convert FAISS ids → CodeChunk objects
+    initial_chunks = [
+        metadata_store.get_chunk(i)
+        for i in indices
+    ]
 
-    for rank, (idx, score) in enumerate(zip(indices, scores), start=1):
-        metadata = metadata_store.get(idx)
+    # structural expansion
+    expanded_chunks = expand_dependencies(
+        initial_chunks,
+        metadata_store
+    )
+
+    logger.info("Top results (after dependency expansion):")
+
+    for rank, chunk in enumerate(expanded_chunks, start=1):
 
         logger.info(
             f"\nRank {rank}\n"
-            f"Score: {score:.4f}\n"
-            f"Function: {metadata['name']}\n"
-            f"File: {metadata['file_path']}\n"
-            f"Lines: {metadata['start_line']} - {metadata['end_line']}\n"
+            f"Function: {chunk.name}\n"
+            f"File: {chunk.file_path}\n"
+            f"Lines: {chunk.start_line} - {chunk.end_line}\n"
         )
-
     end_time = time.time()
+
     logger.info(f"Total execution time: {end_time - start_time:.2f}s")
 
     logger.info("Test completed successfully.")
 
-
 if __name__ == "__main__":
     main()
-
-
-
-
-#TODO
-"""
-find out the working of sentence transformer and how to run it for this project as it is showing error
-"""
+    

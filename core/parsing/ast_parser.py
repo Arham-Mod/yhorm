@@ -97,36 +97,36 @@ class ASTParser:
         source_code = "\n".join(source_lines[start_line - 1:end_line])
 
         # Extract called functions
-        calls = self._extract_calls(node)
+        called_functions = self._extract_calls(node)
 
         chunk_id = f"{os.path.basename(file_path)}:{node.name}:{start_line}"
 
         return CodeChunk(
-            id=chunk_id,
+            chunk_id=chunk_id,
             file_path=file_path,
             name=node.name,
             type=chunk_type,
             start_line=start_line,
             end_line=end_line,
             source_code=source_code,
-            calls=calls
+            called_functions=called_functions
         )
     
     def _extract_calls(self, node) -> List[str]:
         """
         Extract simple function calls inside a node.
         """
-        calls = []
+        called = []
 
         for child in ast.walk(node):
             if isinstance(child, ast.Call):
 
-                # Simple function call: foo()
+                # Simple function call:
                 if isinstance(child.func, ast.Name):
-                    calls.append(child.func.id)
+                    called.append(child.func.id)
 
                 # Method call: obj.method()
                 elif isinstance(child.func, ast.Attribute):
-                    calls.append(child.func.attr)
+                    called.append(child.func.attr)
 
-        return list(set(calls))  # remove duplicates
+        return list(set(called))  # remove duplicates
