@@ -1,7 +1,9 @@
 import os
 import time
 import logging
+import argparse
 
+from dotenv import load_dotenv
 from utils.logging.logger import setup_logging
 
 from core.ingestion.repo_loader import load_repository
@@ -10,6 +12,8 @@ from core.indexing.embedder import Embedder
 from core.indexing.faiss_store import FaissVectorStore
 from core.indexing.metadata_store import MetadataStore
 from core.retrieval.retriever import expand_dependencies
+from core.ingestion.github_fetcher import fetch_repository
+from core.ingestion.repo_loader import load_repository
 
 
 def main():
@@ -18,8 +22,8 @@ def main():
     setup_logging()
     logger = logging.getLogger(__name__)
 
-    logger.info("Starting Repository Intelligence System Test")
-
+    logger.info("Starting Repository System Test")
+    
     # Load Repository
     repo_path = "data/raw/"  
     files = load_repository(repo_path)
