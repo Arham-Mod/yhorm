@@ -1,24 +1,13 @@
-from typing import List
+def build_context(chunks, max_chunks=5):
 
-def build_context(cohunks: List, max_chunks: int=5) -> str:
-    """
-    Converts retrieved chunks into a structed prompt context
-    """
-    # Removing du[lictae chunks based on chunk id
-    unique_chunks = {}
+    if not chunks:
+        return "No relevant code found."
 
-    for chunk in cohunks:
-        unique_chunks[chunk.chunk_id] = chunk
-    
-    chunks = list(unique_chunks.values)
-
-    # Limiting number of chunks 
-
-    chunks = chunks[:max_chunks]
+    selected_chunks = chunks[:max_chunks]
 
     context_blocks = []
 
-    for chunk in chunks:
+    for chunk in selected_chunks:
 
         block = f"""
 File: {chunk.file_path}
@@ -27,11 +16,10 @@ Lines: {chunk.start_line}-{chunk.end_line}
 
 code:
 {chunk.source_code}
-        """
+"""
 
-        context_blocks.append(block)
+        context_blocks.append(block.strip())
 
-        # Join blocks
-        context = "\n\n----------------------------------------\n\n".join(context_blocks)
+    context = "\n\n----------------------------------------\n\n".join(context_blocks)
 
-        return context
+    return context
