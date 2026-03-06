@@ -34,7 +34,6 @@ def log_clean_context(context: str):
     Logs only Rank, File, Function/Class and Lines from the context.
     Removes the source code for clean logging.
     """
-    setup_logging()
     logger = logging.getLogger(__name__)
 
     filtered_lines = []

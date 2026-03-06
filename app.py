@@ -11,6 +11,8 @@ from core.indexing.metadata_store import MetadataStore
 from core.retrieval.retriever import expand_dependencies
 from core.context_builder.build_context import build_context, log_clean_context
 from core.generation.prompt_builder import build_prompt
+from core.generation.llm_client import generate_answer
+
 
 
 def main():
@@ -71,7 +73,7 @@ def main():
     logger.info("Indexing complete")
 
     # Test Query
-    test_query = "In what files is the chunking and storing logic present?"
+    test_query = "WHICH LLM MODEL IS USED IN THE CODEBASE? is it any good?"
 
     logger.info(f"Running test query: {test_query}")
 
@@ -124,6 +126,11 @@ def main():
     # Prompt Building
     prompt = build_prompt(test_query, context)
     logger.info("\nFinal Prompt Sent to LLM\n")
+
+    answer = generate_answer(prompt)
+
+    print(answer)
+    logger.info("Answer generation complete.")
 
 
 if __name__ == "__main__":
