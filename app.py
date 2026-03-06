@@ -9,7 +9,7 @@ from core.indexing.embedder import Embedder
 from core.indexing.faiss_store import FaissVectorStore
 from core.indexing.metadata_store import MetadataStore
 from core.retrieval.retriever import expand_dependencies
-from core.context_builder.build_context import build_context
+from core.context_builder.build_context import build_context, log_clean_context
 
 
 def main():
@@ -69,9 +69,7 @@ def main():
 
     logger.info("Indexing complete")
 
-    # -----------------------------
     # Test Query
-    # -----------------------------
     test_query = "In what files is the chunking and storing logic present?"
 
     logger.info(f"Running test query: {test_query}")
@@ -99,8 +97,6 @@ def main():
 
     context = build_context(expanded_chunks)
 
-    logger.info("\n===== FINAL CONTEXT SENT TO LLM =====\n")
-    print(context)
 
     # Show retrieved chunks
     logger.info("Top results (after dependency expansion):")
@@ -116,9 +112,13 @@ def main():
 
     end_time = time.time()
 
+    logger.info("\n===== FINAL CONTEXT SENT TO LLM =====\n")
+    print(context)
     logger.info(f"Total execution time: {end_time - start_time:.2f}s")
 
     logger.info("Test completed successfully.")
+
+    log_clean_context(context)
 
 
 if __name__ == "__main__":
