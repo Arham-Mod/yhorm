@@ -10,6 +10,7 @@ from core.indexing.faiss_store import FaissVectorStore
 from core.indexing.metadata_store import MetadataStore
 from core.retrieval.retriever import expand_dependencies
 from core.context_builder.build_context import build_context, log_clean_context
+from core.generation.prompt_builder import build_prompt
 
 
 def main():
@@ -119,6 +120,10 @@ def main():
     logger.info("Test completed successfully.")
 
     log_clean_context(context)
+
+    # Prompt Building
+    prompt = build_prompt(test_query, context)
+    logger.info("\nFinal Prompt Sent to LLM\n")
 
 
 if __name__ == "__main__":
