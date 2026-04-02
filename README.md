@@ -1,4 +1,4 @@
-# Clio
+# CLIO-v1.0
 
 Structure-Aware Repository Intelligence System
 

@@ -73,7 +73,7 @@ def main():
     logger.info("Indexing complete")
 
     # Test Query
-    test_query = "WHICH LLM MODEL IS USED IN THE CODEBASE? is it any good?"
+    test_query = "WHICH LLM MODEL IS USED IN THE CODEBASE? RETURN THE FUNCTION THAT CALLS THE LLM AND THE MODEL NAME."
 
     logger.info(f"Running test query: {test_query}")
 
